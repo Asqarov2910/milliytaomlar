@@ -5,11 +5,11 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('favorites');
   await Hive.openBox('settings');
-  runApp(const MilliyTaomlarApp());
+  runApp(const MilliTaomlarApp());
 }
 
-class MilliyTaomlarApp extends StatelessWidget {
-  const MilliyTaomlarApp({super.key});
+class MilliTaomlarApp extends StatelessWidget {
+  const MilliTaomlarApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class MilliyTaomlarApp extends StatelessWidget {
       builder: (context, box, _) {
         final isDarkMode = box.get('darkMode', defaultValue: false);
         return MaterialApp(
-          title: 'Milliy Taomlar',
+          title: 'Milli Taomlar',
           theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
           home: const HomeScreen(),
           debugShowCheckedModeBanner: false,
@@ -40,15 +40,13 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _filteredDishes = [];
 
   final List<Map<String, dynamic>> _allDishes = [
-    {'name': 'Osh', 'desc': "Eng mashhur o'zbek taomi", 'time': '90 daqiqa', 'servings': '4'},
-    {'name': 'Manti', 'desc': "Go'shtli xamirli taom", 'time': '120 daqiqa', 'servings': '3'},
-    {'name': "Lag'mon", 'desc': "'Uyg'ur milliy taomi'", 'time': '30 daqiqa', 'servings': '2'},
-    {'name': 'Qazi', 'desc': "Odatiy go'shtli taom", 'time': '120 daqiqa', 'servings': '6'},
-    {'name': 'Dimlama', 'desc': "Go'shtli va sabzavotli taom", 'time': '90 daqiqa', 'servings': '5'},
-    {'name': 'Shashlik', 'desc': "qiymali go'sht", 'time': '40 daqiqa', 'servings': '2'},
+    {'name': 'Osh', 'desc': 'An\'anaviy o\'zbek taomi', 'time': '60 min', 'servings': '4'},
+    {'name': 'Manti', 'desc': 'Go\'shtli xamir taom', 'time': '45 min', 'servings': '3'},
+    {'name': 'Lag\'mon', 'desc': 'Uyg\'ur milliy taomi', 'time': '30 min', 'servings': '2'},
+    {'name': 'Qazi', 'desc': 'An\'anaviy go\'shtli taom', 'time': '120 min', 'servings': '6'},
+    {'name': 'Dimlama', 'desc': 'Go\'sht va sabzavotli taom', 'time': '90 min', 'servings': '5'},
+    {'name': 'Shashlik', 'desc': 'Molyarali go\'sht', 'time': '40 min', 'servings': '2'},
   ];
-
-
 
   @override
   void initState() {
@@ -86,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MILLIY TAOMLAR'),
+        title: const Text('MILLI TAOMLAR'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -103,8 +101,20 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            _buildSectionTitle("Eng mashhur o'zbek taomlari"),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Taom nomi yoki tarkibi bo\'yicha qidiruv...',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            _buildSectionTitle('Eng Mashhurlar'),
             _buildPopularDishes(),
             _buildSectionTitle('Barcha Taomlar'),
             _buildAllDishes(),
@@ -244,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (favoriteDishes.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text("Hozircha sevimli taomlar ro'yxati mavjud emas"),
+        child: Text('Hozircha sevimli taomlar mavjud emas'),
       );
     }
 
@@ -372,14 +382,13 @@ class CategoryScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          _buildCategoryItem(context, "Go'shtli taomlar", Icons.fastfood),
-          _buildCategoryItem(context, "Sabzavotli taomlar", Icons.eco),
-          _buildCategoryItem(context, "Sho'rvalar", Icons.soup_kitchen),
-          _buildCategoryItem(context, "Shirinliklar", Icons.cake),
-          _buildCategoryItem(context, "Ichimliklar", Icons.local_drink),
+          _buildCategoryItem(context, 'Go\'shtli Taomlar', Icons.fastfood),
+          _buildCategoryItem(context, 'Sabzavotli Taomlar', Icons.eco),
+          _buildCategoryItem(context, 'Sho\'rvalar', Icons.soup_kitchen),
+          _buildCategoryItem(context, 'Shirinliklar', Icons.cake),
+          _buildCategoryItem(context, 'Ichimliklar', Icons.local_drink),
         ],
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bosh'),
@@ -399,7 +408,6 @@ class CategoryScreen extends StatelessWidget {
     );
   }
 
-
   Widget _buildCategoryItem(BuildContext context, String name, IconData icon) {
     return Card(
       margin: const EdgeInsets.all(8.0),
@@ -407,17 +415,24 @@ class CategoryScreen extends StatelessWidget {
         leading: Icon(icon, size: 40, color: Theme.of(context).primaryColor),
         title: Text(name, style: const TextStyle(fontSize: 18)),
         trailing: const Icon(Icons.arrow_forward_ios),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryDetailScreen(categoryName: name),
-            ),
-          );
-        },
+        onTap: () {},
       ),
     );
   }
+}
+
+class RecipeDetailScreen extends StatelessWidget {
+  final Map<String, dynamic> dish;
+  final bool isFavorite;
+  final Function(String) onFavoriteToggle;
+
+  const RecipeDetailScreen({
+    super.key,
+    required this.dish,
+    required this.isFavorite,
+    required this.onFavoriteToggle,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -448,18 +463,18 @@ class CategoryScreen extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text("- Go'sht"),
-            const Text("- Sabzavotlar"),
-            const Text("- meva va ziravorlar"),
+            const Text('- Go\'sht'),
+            const Text('- Sabzavotlar'),
+            const Text('- Dafza va ziravorlar'),
             const SizedBox(height: 16),
             const Text(
-              'Tayyorlash usuli',
+              'Tayyorlash Usuli',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text("1. Barcha mahsulotlarni tozalang"),
-            const Text("2. Go'shtni maydalab qo'ying"),
-            const Text("3. Dasturxonga tortish uchun tayyorlang"),
+            const Text('1. Barcha mahsulotlarni tozalang'),
+            const Text('2. Go\'shtni maydalab qo\'ying'),
+            const Text('3. Dasturxonga tortish uchun tayyorlang'),
             const SizedBox(height: 20),
             Center(
               child: ElevatedButton(
@@ -508,25 +523,23 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         children: [
           SwitchListTile(
-            title: const Text("Mavzuni almashtirish"),
+            title: const Text('Qorong\'u Mavzu'),
             value: isDarkMode,
             onChanged: (value) {
               settingsBox.put('darkMode', value);
             },
           ),
-
-
           ListTile(
-            title: const Text('Ilova haqida'),
+            title: const Text('Til'),
+            subtitle: const Text('O\'zbekcha'),
             trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AboutAppScreen()),
-              );
-            },
+            onTap: () {},
           ),
-
+          ListTile(
+            title: const Text('Ilova Haqida'),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {},
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -548,88 +561,3 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
-
-class AboutAppScreen extends StatefulWidget {
-  const AboutAppScreen({super.key});
-
-  @override
-  State<AboutAppScreen> createState() => _AboutAppScreenState();
-}
-
-class _AboutAppScreenState extends State<AboutAppScreen> {
-  final TextEditingController _controller = TextEditingController();
-
-  void _showEnteredText() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DisplayTextScreen(text: _controller.text),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Ilova haqida')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _controller,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'Matn kiriting',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _showEnteredText,
-              child: const Text('Ko‘rsatish'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DisplayTextScreen extends StatelessWidget {
-  final String text;
-
-  const DisplayTextScreen({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Kiritilgan matn")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 18),
-        ),
-      ),
-    );
-  }
-}
-
-class CategoryDetailScreen extends StatelessWidget {
-  final String categoryName;
-
-  const CategoryDetailScreen({super.key, required this.categoryName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(categoryName)),
-      body: Center(
-        child: Text(
-          '$categoryName sahifasi',
-          style: const TextStyle(fontSize: 22),
-        ),
-      ),
-    );
-  }
