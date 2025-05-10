@@ -20,10 +20,45 @@ class MilliTaomlarApp extends StatelessWidget {
         return MaterialApp(
           title: 'Milli Taomlar',
           theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
-          home: const HomeScreen(),
+          home: const NavigationScreen(),
           debugShowCheckedModeBanner: false,
         );
       },
+    );
+  }
+}
+
+class NavigationScreen extends StatefulWidget {
+  const NavigationScreen({super.key});
+
+  @override
+  State<NavigationScreen> createState() => _NavigationScreenState();
+}
+
+class _NavigationScreenState extends State<NavigationScreen> {
+  int selectedIndex = 0;
+  final pages = [
+    const HomeScreen(),
+    // const CategoryScreen(),
+    const SettingsScreen(),
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: pages[selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bosh'),
+          // BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Kategoriya'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Sozlamalar'),
+        ],
+        onTap: (index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+      ),
     );
   }
 }
@@ -38,6 +73,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> _filteredDishes = [];
+
+
 
   final List<Map<String, dynamic>> _allDishes = [
     {'name': 'Osh', 'desc': 'An\'anaviy o\'zbek taomi', 'time': '60 min', 'servings': '4'},
@@ -59,8 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredDishes = _allDishes.where((dish) {
-        return dish['name'].toLowerCase().contains(query) ||
-            dish['desc'].toLowerCase().contains(query);
+        return dish['name'].toLowerCase().contains(query) || dish['desc'].toLowerCase().contains(query);
       }).toList();
     });
   }
@@ -123,22 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bosh'),
-          BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Kategoriya'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Sozlamalar'),
-        ],
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const CategoryScreen()));
-          } else if (index == 2) {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const SettingsScreen()));
-          }
-        },
-      ),
+
     );
   }
 
@@ -157,9 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
       height: 180,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        children: _allDishes.take(3).map((dish) =>
-            _buildDishCard(dish)
-        ).toList(),
+        children: _allDishes.take(3).map((dish) => _buildDishCard(dish)).toList(),
       ),
     );
   }
@@ -167,13 +186,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildDishCard(Map<String, dynamic> dish) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) => RecipeDetailScreen(
-            dish: dish,
-            isFavorite: _isFavorite(dish['name']),
-            onFavoriteToggle: _toggleFavorite,
-          ),
-        ));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecipeDetailScreen(
+                dish: dish,
+                isFavorite: _isFavorite(dish['name']),
+                onFavoriteToggle: _toggleFavorite,
+              ),
+            ));
       },
       child: Container(
         width: 160,
@@ -215,9 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildAllDishes() {
     return Column(
-      children: _filteredDishes.map((dish) =>
-          _buildDishItem(dish)
-      ).toList(),
+      children: _filteredDishes.map((dish) => _buildDishItem(dish)).toList(),
     );
   }
 
@@ -234,22 +253,22 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () => _toggleFavorite(dish['name']),
       ),
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) => RecipeDetailScreen(
-            dish: dish,
-            isFavorite: _isFavorite(dish['name']),
-            onFavoriteToggle: _toggleFavorite,
-          ),
-        ));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecipeDetailScreen(
+                dish: dish,
+                isFavorite: _isFavorite(dish['name']),
+                onFavoriteToggle: _toggleFavorite,
+              ),
+            ));
       },
     );
   }
 
   Widget _buildFavorites() {
     final favoritesBox = Hive.box('favorites');
-    final favoriteDishes = _allDishes.where((dish) =>
-        favoritesBox.containsKey(dish['name'])
-    ).toList();
+    final favoriteDishes = _allDishes.where((dish) => favoritesBox.containsKey(dish['name'])).toList();
 
     if (favoriteDishes.isEmpty) {
       return const Padding(
@@ -259,26 +278,30 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Column(
-      children: favoriteDishes.map((dish) =>
-          ListTile(
-            leading: Icon(Icons.favorite, color: Colors.red),
-            title: Text(dish['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('${dish['time']} • ${dish['servings']} kishi'),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => _toggleFavorite(dish['name']),
+      children: favoriteDishes
+          .map(
+            (dish) => ListTile(
+              leading: Icon(Icons.favorite, color: Colors.red),
+              title: Text(dish['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('${dish['time']} • ${dish['servings']} kishi'),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _toggleFavorite(dish['name']),
+              ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RecipeDetailScreen(
+                        dish: dish,
+                        isFavorite: true,
+                        onFavoriteToggle: _toggleFavorite,
+                      ),
+                    ));
+              },
             ),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(
-                builder: (context) => RecipeDetailScreen(
-                  dish: dish,
-                  isFavorite: true,
-                  onFavoriteToggle: _toggleFavorite,
-                ),
-              ));
-            },
-          ),
-      ).toList(),
+          )
+          .toList(),
     );
   }
 }
@@ -312,10 +335,11 @@ class DishSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    final results = dishes.where((dish) =>
-    dish['name'].toLowerCase().contains(query.toLowerCase()) ||
-        dish['desc'].toLowerCase().contains(query.toLowerCase())
-    ).toList();
+    final results = dishes
+        .where((dish) =>
+            dish['name'].toLowerCase().contains(query.toLowerCase()) ||
+            dish['desc'].toLowerCase().contains(query.toLowerCase()))
+        .toList();
 
     return ListView.builder(
       itemCount: results.length,
@@ -325,20 +349,22 @@ class DishSearchDelegate extends SearchDelegate {
           title: Text(dish['name']),
           subtitle: Text(dish['desc']),
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(
-              builder: (context) => RecipeDetailScreen(
-                dish: dish,
-                isFavorite: Hive.box('favorites').containsKey(dish['name']),
-                onFavoriteToggle: (dishName) {
-                  final favoritesBox = Hive.box('favorites');
-                  if (favoritesBox.containsKey(dishName)) {
-                    favoritesBox.delete(dishName);
-                  } else {
-                    favoritesBox.put(dishName, true);
-                  }
-                },
-              ),
-            ));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecipeDetailScreen(
+                    dish: dish,
+                    isFavorite: Hive.box('favorites').containsKey(dish['name']),
+                    onFavoriteToggle: (dishName) {
+                      final favoritesBox = Hive.box('favorites');
+                      if (favoritesBox.containsKey(dishName)) {
+                        favoritesBox.delete(dishName);
+                      } else {
+                        favoritesBox.put(dishName, true);
+                      }
+                    },
+                  ),
+                ));
           },
         );
       },
@@ -349,10 +375,11 @@ class DishSearchDelegate extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) {
     final suggestions = query.isEmpty
         ? dishes
-        : dishes.where((dish) =>
-    dish['name'].toLowerCase().contains(query.toLowerCase()) ||
-        dish['desc'].toLowerCase().contains(query.toLowerCase())
-    ).toList();
+        : dishes
+            .where((dish) =>
+                dish['name'].toLowerCase().contains(query.toLowerCase()) ||
+                dish['desc'].toLowerCase().contains(query.toLowerCase()))
+            .toList();
 
     return ListView.builder(
       itemCount: suggestions.length,
@@ -389,22 +416,6 @@ class CategoryScreen extends StatelessWidget {
           _buildCategoryItem(context, 'Ichimliklar', Icons.local_drink),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bosh'),
-          BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Kategoriya'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Sozlamalar'),
-        ],
-        currentIndex: 1,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pop(context);
-          } else if (index == 2) {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const SettingsScreen()));
-          }
-        },
-      ),
     );
   }
 
@@ -415,16 +426,18 @@ class CategoryScreen extends StatelessWidget {
         leading: Icon(icon, size: 40, color: Theme.of(context).primaryColor),
         title: Text(name, style: const TextStyle(fontSize: 18)),
         trailing: const Icon(Icons.arrow_forward_ios),
-        onTap: () {},
+        onTap: () {
+        },
       ),
     );
   }
 }
 
-class RecipeDetailScreen extends StatelessWidget {
+class RecipeDetailScreen extends StatefulWidget {
   final Map<String, dynamic> dish;
   final bool isFavorite;
   final Function(String) onFavoriteToggle;
+
 
   const RecipeDetailScreen({
     super.key,
@@ -434,15 +447,40 @@ class RecipeDetailScreen extends StatelessWidget {
   });
 
   @override
+  State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
+}
+
+class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  late bool isFavorite;
+
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.isFavorite;
+  }
+  @override
+  void didUpdateWidget(covariant RecipeDetailScreen oldWidget) {
+    if(widget.isFavorite != oldWidget.isFavorite) {
+      setState(() {});
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(dish['name']),
+        title: Text(widget.dish['name']),
         actions: [
           IconButton(
             icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
             color: Colors.red,
-            onPressed: () => onFavoriteToggle(dish['name']),
+            onPressed: () {
+              widget.onFavoriteToggle(widget.dish['name']);
+              setState(() {
+                isFavorite = !isFavorite;
+              });
+            },
           ),
         ],
       ),
@@ -452,11 +490,11 @@ class RecipeDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              dish['name'],
+              widget.dish['name'],
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('${dish['time']} • ${dish['servings']} kishi'),
+            Text('${widget.dish['time']} • ${widget.dish['servings']} kishi'),
             const SizedBox(height: 16),
             const Text(
               'Kerakli Mahsulotlar',
@@ -485,32 +523,18 @@ class RecipeDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bosh'),
-          BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Kategoriya'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Sozlamalar'),
-        ],
-        currentIndex: 0,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          } else if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const CategoryScreen()));
-          } else if (index == 2) {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const SettingsScreen()));
-          }
-        },
-      ),
     );
   }
 }
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final settingsBox = Hive.box('settings');
@@ -527,6 +551,7 @@ class SettingsScreen extends StatelessWidget {
             value: isDarkMode,
             onChanged: (value) {
               settingsBox.put('darkMode', value);
+              setState(() {});
             },
           ),
           ListTile(
@@ -538,25 +563,20 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             title: const Text('Ilova Haqida'),
             trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {},
+            onTap: () {
+              showAboutDialog(
+                context: context,
+                applicationName: 'Milli Taomlar',
+                applicationVersion: '1.0.0',
+                applicationIcon: const Icon(Icons.fastfood),
+                children: [
+                  const Text('Bu ilova O\'zbek milliy taomlari haqida ma\'lumot beradi.\n'),
+                   Text('Dasturchi: Abrorjon Asqarov', style: TextStyle(fontWeight: FontWeight.w600),),
+                ],
+              );
+            },
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bosh'),
-          BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Kategoriya'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Sozlamalar'),
-        ],
-        currentIndex: 2,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          } else if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const CategoryScreen()));
-          }
-        },
       ),
     );
   }
